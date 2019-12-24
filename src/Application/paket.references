@@ -1,0 +1,7 @@
+group Application
+    FSharp.Core
+    FSharp.Data
+    Fsharp.Collections.ParallelSeq
+    FSharp.Control.AsyncSeq
+    Hopac
+    Http.fs
