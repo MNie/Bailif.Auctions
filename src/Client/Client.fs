@@ -50,7 +50,7 @@ let search = Server.api.filtered
 let init () : Model * Cmd<Msg> =
     let initialModel = { Search = ""; Auctions = Seq.empty; Zoom = (Fable.Core.U3.Case3 (54.425, 18.59)) }
     let loadCountCmd =
-        Cmd.OfAsync initialize () Init Error
+        Cmd.ofAsync initialize () Init Error
     initialModel, loadCountCmd
 
 // The update function computes the next state of the application based on the current state and the incoming events/messages
