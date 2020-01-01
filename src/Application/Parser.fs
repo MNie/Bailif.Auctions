@@ -35,27 +35,33 @@ module internal Parser =
         
         doc.CssSelect("table")
         |> List.tryHead
-        |> fun x ->
-            match x with
-            | Some v ->
-                v.Elements [ "tr" ]
-                |> List.skip 1
-                |> List.filter (fun y -> 
-                    let nOfElements = y.Elements [ "td" ] |> List.length
-                    nOfElements > 1
-                )
-                |> List.map (fun x ->
-                    let columns = x.Elements [ "td" ]
-                    let ``when`` = columns.[2] |> fun x -> DateTime.ParseExact(x.InnerText().Trim(), "dd.MM.yyyy", CultureInfo.InvariantCulture)
-                    let (_, details) = Seq.foldBack (fun e (i, acc) -> (i - 1, if i <= 0 then acc else e :: acc)) columns (2, [])
-                    let prize = details |> Seq.head |> fun x -> x.InnerText () |> fun x -> onlyNumbers.Replace(x, "")
-                    let link = details |> Seq.last |> fun x -> x.Elements [ "a" ] |> Seq.head |> fun x -> x.Attribute "href" |> fun x -> x.Value
-                    {
-                        prize = (Decimal.Parse(prize.Replace(",", "."), CultureInfo.InvariantCulture))
-                        link = (new System.Uri(sprintf "%s%s" baseUrl (link ())))
-                        ``when`` = ``when``
-                    }
-                )
+        |> fun tab ->
+            match tab with
+            | Some x ->
+                x.Elements [ "tBody" ]
+                |> List.tryHead
+                |> fun body ->
+                    match body with
+                    | Some v ->
+                        v.Elements [ "tr" ]
+                        |> List.skip 1
+                        |> List.filter (fun y -> 
+                            let nOfElements = y.Elements [ "td" ] |> List.length
+                            nOfElements > 1
+                        )
+                        |> List.map (fun x ->
+                            let columns = x.Elements [ "td" ]
+                            let ``when`` = columns.[2] |> fun x -> DateTime.ParseExact(x.InnerText().Trim(), "dd.MM.yyyy", CultureInfo.InvariantCulture)
+                            let (_, details) = Seq.foldBack (fun e (i, acc) -> (i - 1, if i <= 0 then acc else e :: acc)) columns (3, [])
+                            let prize = details |> Seq.head |> fun x -> x.InnerText () |> fun x -> onlyNumbers.Replace(x, "")
+                            let link = details |> Seq.last |> fun x -> x.Elements [ "a" ] |> Seq.head |> fun x -> x.Attribute "href" |> fun x -> x.Value
+                            {
+                                prize = (Decimal.Parse(prize.Replace(",", "."), CultureInfo.InvariantCulture))
+                                link = (new System.Uri(sprintf "%s%s" baseUrl (link ())))
+                                ``when`` = ``when``
+                            }
+                        )
+                    | _ -> []                                        
             | _ -> []
         
     let parseAuction (html) =

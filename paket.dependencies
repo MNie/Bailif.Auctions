@@ -11,6 +11,8 @@ group Application
     nuget FSharp.Control.AsyncSeq
     nuget Hopac
     nuget Http.fs
+    nuget Canopy
+    nuget Selenium.WebDriver.ChromeDriver
 
 group Server
     source https://api.nuget.org/v3/index.json

@@ -4,6 +4,8 @@ open FSharp.Control
 open Application.Fetcher
 open Application.Coordinates
 open Application.Parser
+open canopy
+open System
 
 type internal Auction =
     {
@@ -23,20 +25,20 @@ type AuctionInformation =
     }
 
 module Auctions =
-    let private getConcreteAuction (auction: BaseAuction) =
-        Fetcher.fetchAuction auction.link.AbsoluteUri
-        |> Parser.parseAuction
-    
     let get =
+        configuration.chromeDir <- AppDomain.CurrentDomain.BaseDirectory
+
         Fetcher.fetchHtml
         >> Parser.parseHtml
         >> fun x ->
+            let concreteAuctions = Fetcher.fetchAuctions (x |> List.map (fun y -> y.link.AbsoluteUri))
             async {
                 let! result =
                     x
                     |> List.map (fun y ->
                         async {
-                            let! details = getConcreteAuction (y)
+                            let auction = concreteAuctions.[ y.link.AbsoluteUri ]
+                            let! details = auction |> Parser.parseAuction
                             match details with
                             | Some d ->
                                 let info = sprintf "Prize: %M zł, property located near: %s, auction at: %s" y.prize d.address (y.``when``.ToString("dd/MM/yyyy"))
