@@ -123,9 +123,7 @@ let buildMarker (auction: Auction): ReactElement =
           [ RL.PopupProps.Key (auction.link |> string)]
           [ Control.p 
               [] 
-              [ Input.text
-                  [ Input.Disabled true
-                    Input.Value auction.description ] ]
+              [ label [] [ !!auction.description ] ]
             Control.p 
                 [] 
                 [ Button.a
@@ -156,11 +154,11 @@ let view (model : Model) (dispatch : Msg -> unit) =
           Hero.body [ ]
             [ Container.container [ Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
                 [ Column.column
-                    [ Column.Width (Screen.All, Column.Is6)
-                      Column.Offset (Screen.All, Column.Is3) ]
+                    [ Column.Width (Screen.All, Column.Is9)
+                      Column.Offset (Screen.All, Column.Is1) ]
                     [ Heading.p [ ]
                         [ str "Bailif Auctions" ]
-                      RL.map [ RL.MapProps.Zoom 10.; RL.MapProps.Style [Height 500; MinWidth 500]; RL.MapProps.Center model.Zoom ] 
+                      RL.map [ RL.MapProps.Zoom 10.; RL.MapProps.Style [Height 500; MinWidth 200; Width Column.IsFull ]; RL.MapProps.Center model.Zoom ] 
                         (mapElements model)
                                               
                       containerBox model dispatch ] ] ] ]
