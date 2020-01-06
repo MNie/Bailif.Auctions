@@ -22,15 +22,6 @@
         <Compile Include="AuctionsFetcher.fs" />
         <None Include="paket.references" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="chromedriver.exe">
-        <CopyToOutputDirectory>CopyIfNewer</CopyToOutputDirectory>
-      </Content>
-      <Content Include="chromedriver">
-        <CopyToOutputDirectory>CopyIfNewer</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
     
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 
