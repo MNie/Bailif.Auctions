@@ -1,10 +1,5 @@
 open System.IO
-open System.Threading.Tasks
 
-open Microsoft.AspNetCore.Builder
-open Microsoft.Extensions.DependencyInjection
-open FSharp.Control.Tasks.V2
-open Giraffe
 open Saturn
 open Shared
 open Application
@@ -34,18 +29,25 @@ let mapToContract (ai: AuctionInformation): Shared.Auction =
 
 let auctionsApi = {
     init = fun () -> async {
-        let! auctions = Auctions.get ("Gdańsk")
-        return auctions
-            |> Seq.map mapToContract
+        try
+            let! auctions = Auctions.get ("Gdańsk")
+            let mapped = auctions |> Seq.map mapToContract
+            return Ok mapped            
+        with
+        | ex -> return Error ex          
     }
 
     filtered = fun (city) -> async {
-        let! auctions =
-            match city with
-            | c when String.isEmpty c -> Auctions.get ("Gdańsk")
-            | _ -> Auctions.get (city)
-        return auctions
-            |> Seq.map mapToContract
+        try
+            let! auctions =
+                match city with
+                | c when String.isEmpty c -> Auctions.get ("Gdańsk")
+                | _ -> Auctions.get (city)
+            return auctions
+                |> Seq.map mapToContract
+                |> Ok
+        with
+        | ex -> return Error ex
     }
 }
 

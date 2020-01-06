@@ -31,7 +31,7 @@ module Route =
 /// to learn more, read the docs at https://zaid-ajaj.github.io/Fable.Remoting/src/basics.html
 type IAuctionsApi =
     { 
-        init : unit -> Async<Auction seq>
-        filtered : string -> Async<Auction seq> 
+        init : unit -> Async<Result<Auction seq, exn>>
+        filtered : string -> Async<Result<Auction seq, exn>>
     }
 

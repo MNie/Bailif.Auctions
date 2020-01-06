@@ -5,6 +5,7 @@ open Elmish.React
 open Fable.FontAwesome
 open Fable.FontAwesome.Free
 open Fable.React
+open Fable.Core
 open Fable.React.Props
 open Fulma
 open Thoth.Json
@@ -29,8 +30,8 @@ type Model = { Search: string; Auctions: Auction seq; Zoom: LatLngExpression}
 type Msg =
     | Search of string
     | SearchChanged of string
-    | Filtered of Auction seq
-    | Init of Auction seq
+    | Filtered of Result<Auction seq, exn>
+    | Init of Result<Auction seq, exn>
     | Error of exn
 
 module Server =
@@ -64,20 +65,27 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
     | _, SearchChanged city ->
         let nextModel = { currentModel with Search = city }
         nextModel, Cmd.none
-    | _, Filtered auc ->
-        let zoomToFirst = 
-          auc 
-          |> Seq.tryHead 
-          |> fun x -> 
-            match x with 
-            | Some a -> (Fable.Core.U3.Case3 (a.localization.latitude |> float, a.localization.longitude |> float)) 
-            | None -> currentModel.Zoom  
-        let nextModel = { currentModel with Auctions = auc; Zoom = zoomToFirst }
-        nextModel, Cmd.none
-    | _, Init auc->
-        let nextModel = { currentModel with Auctions = auc }
-        nextModel, Cmd.none
+    | _, Filtered possibleAuctions ->
+        match possibleAuctions with
+        | Ok auc ->
+          let zoomToFirst = 
+            auc 
+            |> Seq.tryHead 
+            |> fun x -> 
+              match x with 
+              | Some a -> (Fable.Core.U3.Case3 (a.localization.latitude |> float, a.localization.longitude |> float)) 
+              | None -> currentModel.Zoom  
+          let nextModel = { currentModel with Auctions = auc; Zoom = zoomToFirst }
+          nextModel, Cmd.none
+        | Result.Error e -> currentModel, Cmd.ofMsg (Error e)
+    | _, Init possibleAuction ->
+        match possibleAuction with
+        | Ok auc ->
+          let nextModel = { currentModel with Auctions = auc }
+          nextModel, Cmd.none
+        | Result.Error e -> currentModel, Cmd.ofMsg (Error e)        
     | _, Error e -> 
+        JS.console.log(sprintf "%s%s%s" e.Message " " e.StackTrace)
         currentModel, Cmd.none      
 
 let navBrand =
