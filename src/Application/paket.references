@@ -7,3 +7,4 @@ group Application
     Http.fs
     Canopy
     Selenium.WebDriver.ChromeDriver
+    Microsoft.Extensions.Caching.Memory

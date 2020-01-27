@@ -7,9 +7,20 @@ open Application
 open Fable.Remoting.Server
 open Fable.Remoting.Giraffe
 
+open Microsoft.Extensions.Caching.Memory
+open System
+
 let tryGetEnv = System.Environment.GetEnvironmentVariable >> function null | "" -> None | x -> Some x
 
 let publicPath = Path.GetFullPath "../Client/public"
+
+let cacheOptions = 
+    let opt = MemoryCacheOptions()
+    opt.SizeLimit <- System.Nullable<int64>(100L)
+    opt.ExpirationScanFrequency <- TimeSpan.FromSeconds(5.)
+    opt
+
+let cache = new MemoryCache(cacheOptions)
 
 let port =
     "SERVER_PORT"
@@ -27,10 +38,12 @@ let mapToContract (ai: AuctionInformation): Shared.Auction =
         }    
     }
 
+let getAuctions = Auctions.get cache
+
 let auctionsApi = {
     init = fun () -> async {
         try
-            let! auctions = Auctions.get ("Gdańsk")
+            let! auctions = getAuctions ("Gdańsk")
             let mapped = auctions |> Seq.map mapToContract
             return Ok mapped            
         with
@@ -41,8 +54,8 @@ let auctionsApi = {
         try
             let! auctions =
                 match city with
-                | c when String.isEmpty c -> Auctions.get ("Gdańsk")
-                | _ -> Auctions.get (city)
+                | c when String.isEmpty c -> getAuctions ("Gdańsk")
+                | _ -> getAuctions (city)
             return auctions
                 |> Seq.map mapToContract
                 |> Ok

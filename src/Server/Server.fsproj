@@ -12,8 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
-
   <ItemGroup>
     <Content Include="chromedriver.exe">
       <CopyToOutputDirectory>CopyIfNewer</CopyToOutputDirectory>
@@ -22,4 +20,5 @@
       <CopyToOutputDirectory>CopyIfNewer</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
